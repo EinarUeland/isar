@@ -34,7 +34,10 @@ Verify that you can run the tests:
 ```bash
 pytest .
 ```
-The repository contains a configuration file for installing pre-commit hooks. Currently, [black](https://github.com/psf/black) and a mirror of [mypy](https://github.com/pre-commit/mirrors-mypy) are configured hooks. Install with:
+
+The repository contains a configuration file for installing pre-commit hooks.
+Currently, [black](https://github.com/psf/black) and a mirror of [mypy](https://github.com/pre-commit/mirrors-mypy) are
+configured hooks. Install with:
 
 ```
 pre-commit install
@@ -45,6 +48,7 @@ Verify that pre-commit runs:
 ```
 pre-commit
 ```
+
 pre-commit will now run the installed hooks before code is commited to git. To turn pre-commit off, run:
 
 ```
@@ -255,19 +259,26 @@ option in the dictionary.
 
 ## Task selection
 
-The tasks of a mission are selected based on a task selector module, defined by the `TASK_SELECTOR` configuration variable. The default task selector is `sequential`. When using the default module, tasks are executed in sequential order defined by the current input mission.
+The tasks of a mission are selected based on a task selector module, defined by the `TASK_SELECTOR` configuration
+variable. The default task selector is `sequential`. When using the default module, tasks are executed in sequential
+order defined by the current input mission.
 
 ### Implement you own task selector module
 
-Custom task selector modules may be added by implementing additional versions of the [task selector interface](./src/isar/mission_planner/task_selector_interface.py).
+Custom task selector modules may be added by implementing additional versions of
+the [task selector interface](./src/isar/mission_planner/task_selector_interface.py).
 
-For every custom module, the interface function `next_task()` must be implemented. All interface implementations by default have access to the list of tasks in the current mission through the member `self.tasks`, however additional variables may be supplied by adding arguments to `next_task()`. To comply with the interface definition, the function should return the next task upon every call, and raise the `TaskSelectorStop` exception when all tasks in the current mission have been completed:
+For every custom module, the interface function `next_task()` must be implemented. All interface implementations by
+default have access to the list of tasks in the current mission through the member `self.tasks`, however additional
+variables may be supplied by adding arguments to `next_task()`. To comply with the interface definition, the function
+should return the next task upon every call, and raise the `TaskSelectorStop` exception when all tasks in the current
+mission have been completed:
 
 ```python
 class CustomTaskSelector(TaskSelectorInterface):
     ...
+
     def next_task(...) -> Task:
-        
         # Add code here
         ...
 
@@ -280,14 +291,17 @@ Optionally, the `initialize()` function may be extended by supplementing the par
 ```python
 class CustomTaskSelector(TaskSelectorInterface):
     ...
+
     def initialize(self, tasks: List[Task], ...) -> None:
         super.initialize(tasks=tasks)
-        
+
         # Add supplementary code here
         ...
 ```
 
-A custom task selector may be made available during [module selection](./src/isar/modules.py) by adding it to the series of options in the dictionary of injector modules. It can then be activated by overriding the task selector configuration variable:
+A custom task selector may be made available during [module selection](./src/isar/modules.py) by adding it to the series
+of options in the dictionary of injector modules. It can then be activated by overriding the task selector configuration
+variable:
 
 ```python
 # Add custom task selector module to `modules.py`
@@ -298,20 +312,21 @@ class CustomTaskSelectorModule(Module):
     def provide_task_selector(self) -> TaskSelectorInterface:
         return CustomTaskSelector()
 
+
 ...
 
 # Make it available to select during injector instantiation
 
 modules: dict[str, tuple[Module, Union[str, bool]]] = {
     ...
-    "task_selector": (
-        {
-            "sequential": SequentialTaskSelectorModule,
-            "custom": CustomTaskSelectorModule
-        }
-        ...
-    )
+"task_selector": (
+    {
+        "sequential": SequentialTaskSelectorModule,
+        "custom": CustomTaskSelectorModule
+    }
     ...
+)
+...
 }
 ```
 
@@ -342,8 +357,7 @@ turned off but may be activated by setting the environment variable
 ISAR_MQTT_ENABLED = true
 ```
 
-The connection to the broker will be determined by the following configuration values which may all be overwritten
-through the environment.
+The connection to the broker will be determined by the following configuration values specified in ```settings.env```
 
 ```
 ISAR_MQTT_USERNAME
@@ -351,5 +365,9 @@ ISAR_MQTT_HOST
 ISAR_MQTT_PORT
 ```
 
-In addition, the `ISAR_MQTT_PASSWORD` environment variable should be available for connection to the broker. If username
-and password is not specified both will default to empty strings.
+To specify broker password, setup a .env file with the following environment variable:
+
+```
+ISAR_MQTT_PASSWORD
+```
+If not specified the password will default to an empty string.
